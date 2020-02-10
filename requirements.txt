@@ -2,3 +2,4 @@ tensorflow-gpu==2.0.0
 opencv-python==4.1.1
 absl-py
 tqdm
+numpy

@@ -66,26 +66,6 @@ class YoloOutput(Model):
         return x
 
 
-class YoloAux(Model):
-    def __init__(self, filters, anchors, classes, name=None):
-        super(YoloAux, self).__init__(name=name)
-        self.deepthwise_0 = layers.DepthwiseConv2D(kernel_size=2, strides=2, padding='valid', depth_multiplier=4)
-        self.bn_0 = BatchNormalization()
-        self.lrelu_0 = layers.LeakyReLU(alpha=0.1)
-        self.deepthwise_1 = layers.DepthwiseConv2D(kernel_size=2, strides=2, padding='valid', depth_multiplier=4)
-        self.bn_1 = BatchNormalization()
-        self.lrelu_1  = layers.LeakyReLU(alpha=0.1)
-        self.deepthwise_2 = layers.DepthwiseConv2D(kernel_size=8, strides=8, padding='valid', depth_multiplier=4)
-        self.bn_2 = BatchNormalization()
-        self.lrelu_2  = layers.LeakyReLU(alpha=0.1)
-        self.concat_0 = layers.Concatenate()
-
-    def call(self, inputs):
-        x = self.darknet_0(inputs)
-        x = self.darknet_1(x)
-        x = self.lambda_0(x)
-        return x
-
 class BatchNormalization(tf.keras.layers.BatchNormalization):
     def call(self, x, training=False):
         if training is None:
@@ -202,11 +182,9 @@ def bbox_iou(pred, true):
 
 def Loss(anchors, classes=8, iou_thresh=0.5):
     def yolo_loss(y_true, y_pred):
-        # y_pred and y_true have shapes (batch_size, grid, grid, anchors, (x, y, w, h, obj, ...cls))
         p_bboxes, p_objectness, p_class, p_original = make_bboxs(y_pred, anchors, classes)
         p_xy, p_wh = tf.split(p_original, (2, 2), axis=-1)
 
-        # t_bboxes, t_objectness, t_class_ids = tf.split(y_true, (4, 1, 1), axis=-1)
         t_xy = (y_true[..., 0:2] + y_true[..., 2:4]) / 2  # Center of each coord
         t_wh = y_true[..., 2:4] - y_true[..., 0:2]  # Width and height for each
 
