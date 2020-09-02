@@ -9,7 +9,7 @@ from tensorflow.keras.callbacks import (
     TensorBoard
 )
 
-from core.models import Yolo, Loss, Loss2
+from core.models import Yolo, Loss
 from core.utils import freeze_all, check_dataset, get_anchors, define_basics
 import core.dataset as dataset
 
@@ -58,7 +58,7 @@ def main(_argv):
     if FLAGS.validation_dataset:
         validation_dataset = dataset.load_tfrecord_dataset(FLAGS.validation_dataset, FLAGS.classes, FLAGS.size)
     else:
-        validation_dataset = dataset.load_one_validation()
+        validation_dataset = dataset.load_dummy_validation()
 
     validation_dataset = validation_dataset.batch(FLAGS.batch_size)
     validation_dataset = validation_dataset.map(lambda x, y: (
@@ -97,7 +97,7 @@ def main(_argv):
                         epochs=FLAGS.epochs,
                         callbacks=callbacks,
                         validation_data=validation_dataset,
-                        steps_per_epoch=500)
+                        steps_per_epoch=10)
 
 
 if __name__ == '__main__':

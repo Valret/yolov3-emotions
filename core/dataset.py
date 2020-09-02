@@ -109,6 +109,12 @@ def load_tfrecord_dataset(file_pattern, size):
     dataset = files.flat_map(tf.data.TFRecordDataset)
     return dataset.map(lambda x: parse_tfrecord(x, size))
 
+def load_dummy_validation():
+    x_train = tf.zeros([1, 448, 448, 3])
+    y_train = tf.zeros([1, 8, 5])
+
+    return tf.data.Dataset.from_tensor_slices((x_train, y_train))
+
 
 def load_one_validation():
     x_train = tf.image.decode_image(
